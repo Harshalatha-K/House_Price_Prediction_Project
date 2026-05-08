@@ -1,30 +1,40 @@
-
 import streamlit as st
-import pickle
 import numpy as np
+import joblib
 
-# Load model and scaler
-model = pickle.load(open("model.pkl", "rb"))
-scaler = pickle.load(open("scaler.pkl", "rb"))
+# Load files
+model = joblib.load("model.pkl")
 
-st.title("House Price Prediction App")
+scaler = joblib.load("scaler.pkl")
 
-st.write("Enter house details below:")
+feature_names = joblib.load("features.pkl")
 
-# Inputs
-square_footage = st.number_input("Square Footage", min_value=0.0)
-bedrooms = st.number_input("Bedrooms", min_value=0)
-bathrooms = st.number_input("Bathrooms", min_value=0)
+# Title
+st.title("House Price Prediction")
 
-# Predict Button
+st.write("Enter Feature Values")
+
+input_data = []
+
+# Dynamic inputs
+for feature in feature_names:
+
+    value = st.number_input(
+        f"{feature}",
+        value=0.0
+    )
+
+    input_data.append(value)
+
+# Predict
 if st.button("Predict Price"):
 
-    features = np.array([[square_footage,
-                          bedrooms,
-                          bathrooms]])
+    features = np.array([input_data])
 
     scaled_features = scaler.transform(features)
 
     prediction = model.predict(scaled_features)
 
-    st.success(f"Predicted House Price: ${prediction[0]:,.2f}")
+    st.success(
+        f"Predicted Price: ₹ {prediction[0]:,.2f}"
+    )
